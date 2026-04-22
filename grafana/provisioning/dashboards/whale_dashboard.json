@@ -1,0 +1,83 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "liveNow": true,
+  "panels": [
+    {
+      "title": "🐋 Whale Events Over Time",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "rawSql": "SELECT detected_at as time, amount_usd as value, blockchain as metric FROM whale_events ORDER BY detected_at DESC LIMIT 100",
+          "format": "time_series"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 20, "lineWidth": 2 }
+        }
+      }
+    },
+    {
+      "title": "🚨 Signals by Risk Level",
+      "type": "piechart",
+      "gridPos": { "h": 8, "w": 6, "x": 12, "y": 0 },
+      "targets": [
+        {
+          "rawSql": "SELECT risk_level, COUNT(*) as count FROM signals GROUP BY risk_level",
+          "format": "table"
+        }
+      ]
+    },
+    {
+      "title": "💰 Volume by Blockchain",
+      "type": "bargauge",
+      "gridPos": { "h": 8, "w": 6, "x": 18, "y": 0 },
+      "targets": [
+        {
+          "rawSql": "SELECT blockchain, SUM(amount_usd) as total_usd FROM whale_events GROUP BY blockchain",
+          "format": "table"
+        }
+      ]
+    },
+    {
+      "title": "🏦 Exchange Deposits",
+      "type": "table",
+      "gridPos": { "h": 10, "w": 12, "x": 0, "y": 8 },
+      "targets": [
+        {
+          "rawSql": "SELECT detected_at, blockchain, amount, amount_usd, exchange_name, from_address FROM whale_events WHERE is_exchange_deposit = 1 ORDER BY id DESC LIMIT 50",
+          "format": "table"
+        }
+      ]
+    },
+    {
+      "title": "📊 Recent Signals",
+      "type": "table",
+      "gridPos": { "h": 10, "w": 12, "x": 12, "y": 8 },
+      "targets": [
+        {
+          "rawSql": "SELECT created_at, signal_id, risk_level, intent, confidence, suggested_action FROM signals ORDER BY id DESC LIMIT 50",
+          "format": "table"
+        }
+      ]
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "style": "dark",
+  "tags": ["whaleradar", "crypto", "whale"],
+  "templating": { "list": [] },
+  "time": { "from": "now-24h", "to": "now" },
+  "timepicker": {},
+  "timezone": "utc",
+  "title": "WhaleRadar — Live Dashboard",
+  "uid": "whaleradar-main",
+  "version": 1
+}

@@ -1,0 +1,39 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Environment
+.env
+
+# Data
+data/
+*.db
+
+# Docker volumes
+kafka_data/
+namenode_data/
+datanode_data/
+postgres_data/
+grafana_data/
+
+# Spark
+whale_intent_model*/
+*.pkl
+metastore_db/
+spark-warehouse/
+derby.log
+
+# Airflow
+airflow/logs/
+
+# IDE
+.idea/
+.vscode/
+*.swp

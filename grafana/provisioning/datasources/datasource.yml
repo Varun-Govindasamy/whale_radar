@@ -1,0 +1,9 @@
+apiVersion: 1
+
+datasources:
+  - name: WhaleRadar-SQLite
+    type: frser-sqlite-datasource
+    access: proxy
+    url: /var/lib/grafana/dashboard.db
+    isDefault: true
+    editable: true
