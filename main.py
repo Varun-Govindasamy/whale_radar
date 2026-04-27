@@ -15,6 +15,11 @@ import signal
 import sys
 from datetime import datetime, timezone
 
+# Fix Windows console encoding for UTF-8
+if sys.platform == "win32":
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 from whaleradar.agents.graph import analyze_whale_event
 from whaleradar.config import settings
 from whaleradar.kafka.consumer import WhaleConsumer
@@ -81,6 +86,10 @@ async def run_agent_pipeline(event: dict, ml_prediction: dict | None = None) -> 
 
 async def consume_whale_events() -> None:
     """Consume whale events from Kafka and run through agent pipeline."""
+    from confluent_kafka import KafkaError
+
+    from whaleradar.kafka.consumer import WhaleConsumer
+
     consumer = WhaleConsumer(
         bootstrap_servers=settings.kafka_bootstrap_servers,
         group_id="whaleradar-agents",
@@ -91,10 +100,23 @@ async def consume_whale_events() -> None:
 
     loop = asyncio.get_event_loop()
     try:
-        for message in consumer.consume():
-            # Run agent pipeline asynchronously
-            await run_agent_pipeline(message)
-    except KeyboardInterrupt:
+        while True:
+            # Poll Kafka in a thread so we don't block the event loop
+            msg = await loop.run_in_executor(None, consumer._consumer.poll, 1.0)
+            if msg is None:
+                continue
+            if msg.error():
+                if msg.error().code() == KafkaError._PARTITION_EOF:
+                    continue
+                print(f"[kafka-consumer] Error: {msg.error()}")
+                continue
+            try:
+                import orjson
+                event = orjson.loads(msg.value())
+                await run_agent_pipeline(event)
+            except Exception as exc:
+                print(f"[kafka-consumer] Error processing: {exc}")
+    except asyncio.CancelledError:
         pass
     finally:
         consumer.close()

@@ -28,11 +28,16 @@ FEATURE_COLS = [
 
 
 def build_training_session() -> SparkSession:
-    """Create a Spark session for batch training."""
+    """Create a local Spark session for batch training."""
+    import os
     return (
         SparkSession.builder
         .appName("WhaleRadar-ModelTraining")
-        .master(settings.spark_master)
+        .master("local[*]")
+        .config("spark.driver.memory", "2g")
+        .config("spark.sql.execution.pyspark.udf.faulthandler.enabled", "true")
+        .config("spark.pyspark.python", os.environ.get("PYSPARK_PYTHON", "python"))
+        .config("spark.pyspark.driver.python", os.environ.get("PYSPARK_DRIVER_PYTHON", "python"))
         .getOrCreate()
     )
 

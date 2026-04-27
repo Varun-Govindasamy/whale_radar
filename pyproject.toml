@@ -13,7 +13,7 @@ dependencies = [
     "confluent-kafka>=2.6",
 
     # Spark
-    "pyspark>=3.5",
+    "pyspark>=3.5,<4.0",
 
     # AI / LLM agents
     "langgraph>=0.2",
@@ -38,6 +38,7 @@ dependencies = [
     # Utilities
     "orjson>=3.10",
     "structlog>=24.0",
+    "setuptools>=70.0",  # provides distutils for PySpark 3.5 on Python 3.13
 ]
 
 [project.scripts]
